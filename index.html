@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistik Pemilihan Ketua OSIS</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 20px;
+    }
+
+    canvas {
+      margin-top: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    select, input {
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px;
+      font-size: 14px;
+      background-color: #4e73df;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #2e59d9;
+    }
+
+    button.subtract {
+      background-color: #e74a3b;
+    }
+
+    button.subtract:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Hasil Pemilihan Ketua OSIS 2025</h1>
+    
+    <canvas id="voteChart" height="200"></canvas>
+
+    <form id="voteForm">
+      <label for="candidate">Pilih Kandidat:</label>
+      <select id="candidate" required>
+        <option value="Andi">Andi</option>
+        <option value="Budi">Budi</option>
+        <option value="Citra">Citra</option>
+        <option value="Dedi">Dedi</option>
+        <option value="Euis">Euis</option>
+        <option value="Fajar">Fajar</option>
+        <option value="Gina">Gina</option>
+        <option value="Hasan">Hasan</option>
+      </select>
+
+      <label for="votes">Jumlah Suara:</label>
+      <input type="number" id="votes" min="1" required>
+
+      <div class="buttons">
+        <button type="submit">Tambah Suara</button>
+        <button type="button" class="subtract" id="subtractBtn">Kurangi Suara</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Inisialisasi data kandidat
+    const kandidat = ['Andi', 'Budi', 'Citra', 'Dedi', 'Euis', 'Fajar', 'Gina', 'Hasan'];
+    const suara = [0, 0, 0, 0, 0, 0, 0, 0];
+
+    // Warna untuk masing-masing kandidat
+    const warna = [
+      '#4e73df', '#1cc88a', '#e74a3b', '#f6c23e',
+      '#36b9cc', '#a569bd', '#f1948a', '#5d6d7e'
+    ];
+
+    const ctx = document.getElementById('voteChart').getContext('2d');
+    const voteChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: kandidat,
+        datasets: [{
+          label: 'Jumlah Suara',
+          data: suara,
+          backgroundColor: warna,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Jumlah Suara'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.parsed.y + ' suara';
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Tangani penambahan suara
+    const form = document.getElementById('voteForm');
+    const subtractBtn = document.getElementById('subtractBtn');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const kandidatDipilih = document.getElementById('candidate').value;
+      const jumlahSuara = parseInt(document.getElementById('votes').value);
+
+      const index = kandidat.indexOf(kandidatDipilih);
+      if (index !== -1 && jumlahSuara > 0) {
+        suara[index] += jumlahSuara;
+        voteChart.update();
+        form.reset();
+      }
+    });
+
+    // Tangani pengurangan suara
+    subtractBtn.addEventListener('click', function() {
+      const kandidatDipilih = document.getElementById('candidate').value;
+      const jumlahSuara = parseInt(document.getElementById('votes').value);
+
+      const index = kandidat.indexOf(kandidatDipilih);
+      if (index !== -1 && jumlahSuara > 0) {
+        suara[index] -= jumlahSuara;
+        if (suara[index] < 0) suara[index] = 0;
+        voteChart.update();
+        form.reset();
+      }
+    });
+  </script>
+
+</body>
+</html>
